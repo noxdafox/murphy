@@ -184,6 +184,13 @@ class WindowsState(State):
         else:
             raise RuntimeError("State was not saved")
 
+    def discard(self):
+        if self._saved_state is not None:
+            self._control.state.discard(self._saved_state)
+            self.logger.info("State %s discarded", self.window.title)
+        else:
+            raise RuntimeError("State was not saved")
+
     def dump(self, path: Path):
         image_path = path.joinpath('window.png')
         state_path = path.joinpath('state.json')

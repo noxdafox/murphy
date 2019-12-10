@@ -76,6 +76,10 @@ class State:
         """
         pass
 
+    def discard(self):
+        """Discard the GUI application state if it was previously saved."""
+        pass
+
     def dump(self, path: Path):
         """Dump a representation of the State to the given path.
 

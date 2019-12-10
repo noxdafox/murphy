@@ -45,7 +45,7 @@ def main():
         logging.info("Restoring device state to intial one.")
         journal.initial_node.state.restore()
         logging.info("Cleaning up snapshots.")
-        libvirt_cleanup(arguments.device)
+        journal.initial_node.state.discard()
 
 
 def parse_arguments():

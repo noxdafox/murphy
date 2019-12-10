@@ -36,7 +36,7 @@ class Mouse:
         """Move the cursor to the given co-ordinates."""
         raise NotImplementedError()
 
-    def click(self, button: Any ='left-click'):
+    def click(self, button: Any = 'left-click'):
         """Click the given button.
         The button representation is implementation specific.
 
@@ -102,13 +102,21 @@ class DeviceState:
         """
         raise NotImplementedError()
 
+    def discard(self, state: Any):
+        """Discard the device saved state.
+
+        The state type is opaque.
+
+        """
+        raise NotImplementedError()
+
 
 class Screen:
     """Class representing the screen of the device."""
     def __init__(self, factory: 'MurphyFactory'):
         pass
 
-    def screenshot(self, path: Path=None) -> Path:
+    def screenshot(self, path: Path = None) -> Path:
         """Take a frame of the screen and store it as screenshot
         in a file at the given path.
 

@@ -29,3 +29,8 @@ class LibvirtState(DeviceState):
         """Restore the device state to the given libvirt snapshot."""
         snapshot = self._domain.snapshotLookupByName(state)
         self._domain.revertToSnapshot(snapshot)
+
+    def discard(self, state: str):
+        """Discard the given device state deleting its libvirt snapshot."""
+        snapshot = self._domain.snapshotLookupByName(state)
+        snapshot.delete()
