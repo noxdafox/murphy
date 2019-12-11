@@ -44,7 +44,7 @@ HRESULT initialize_uiautomation(IUIAutomation **);
 std::wstring get_name(IUIAutomationElement *);
 RECT get_window(IUIAutomation *, IUIAutomationElement *);
 RECT get_frame(IUIAutomationElement *);
-ToggleState get_toggle_state(IUIAutomationElement *);
+bool get_toggle_state(IUIAutomationElement *);
 bool get_clickable_state(IUIAutomationElement *);
 void json_add_text(rapidjson::Document &, rapidjson::Value &,
                    const std::wstring &);
@@ -179,6 +179,7 @@ RECT get_window(IUIAutomation *uiauto, IUIAutomationElement *element)
     check_hresult(element->GetCurrentPropertyValue(
                       UIA_BoundingRectanglePropertyId, &vrect));
     check_hresult(uiauto->VariantToRect(vrect, &rect));
+
     VariantClear(&vrect);
 
     return rect;
@@ -193,10 +194,12 @@ RECT get_frame(IUIAutomationElement *element)
                       UIA_NativeWindowHandlePropertyId, &vhwnd));
     GetClientRect(reinterpret_cast<HWND>(vhwnd.lVal), &frame);
 
+    VariantClear(&vhwnd);
+
     return frame;
 }
 
-ToggleState get_toggle_state(IUIAutomationElement *element)
+bool get_toggle_state(IUIAutomationElement *element)
 {
     HRESULT hres;
     VARIANT vstate;
@@ -206,6 +209,22 @@ ToggleState get_toggle_state(IUIAutomationElement *element)
         UIA_ToggleToggleStatePropertyId, &vstate);
     if (hres == S_OK)
         state = (ToggleState) vstate.lVal;
+
+    VariantClear(&vstate);
+
+    return state == ToggleState_On ? true : false;
+}
+
+bool get_focus_state(IUIAutomationElement *element)
+{
+    HRESULT hres;
+    VARIANT vstate;
+    bool state = false;
+
+    hres = element->GetCurrentPropertyValue(
+        UIA_HasKeyboardFocusPropertyId, &vstate);
+    if (hres == S_OK)
+        state = (bool) vstate.boolVal;
 
     VariantClear(&vstate);
 
@@ -249,13 +268,8 @@ void json_add_coordinates(rapidjson::Document &json, rapidjson::Value &value,
 void json_add_properties(rapidjson::Document &json, rapidjson::Value &value,
                          IUIAutomationElement *element)
 {
-    bool toggled;
-    ToggleState toggle_state = get_toggle_state(element);
-
-    if (toggle_state != ToggleState_Indeterminate) {
-        toggled = toggle_state == ToggleState_On ? true : false;
-        value.AddMember("toggled", toggled, json.GetAllocator());
-    }
+    value.AddMember("toggled", get_toggle_state(element), json.GetAllocator());
+    value.AddMember("focused", get_focus_state(element), json.GetAllocator());
     value.AddMember(
         "clickable", get_clickable_state(element), json.GetAllocator());
 }

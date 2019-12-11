@@ -70,7 +70,14 @@ def valid_child(child: dict, coordinates: tuple) -> bool:
 
 
 def child_properties(child: dict) -> dict:
-    return {'toggled': child['toggled']} if 'toggled' in child else {}
+    properties = {}
+
+    if child.get('toggled', False):
+        properties['toggled'] = True
+    if child.get('focused', False):
+        properties['focused'] = True
+
+    return properties
 
 
 def fix_coordinates(child: tuple, window: tuple) -> tuple:

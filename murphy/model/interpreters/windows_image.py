@@ -8,6 +8,7 @@ from typing import Sequence
 import numpy
 from PIL import Image, ImageChops
 
+from murphy.model import Button
 from murphy.model.utils import absolute_coordinates
 
 
@@ -48,9 +49,9 @@ def root_mean_squared_distance(image: Image) -> float:
     return sqrt(square_sum / float(image.size[0] * image.size[1]))
 
 
-def remove_highlights(image: Image, buttons: Sequence) -> Image:
-    """Many GUIs highlight the selected/default action.
-    The selection can be usually moved with the TAB key.
+def remove_highlights(image: Image, actions: Sequence) -> Image:
+    """Many GUIs highlight the focused/default action.
+    The keyboard focus can be usually moved with the TAB key.
 
     This can cause false negatives in which two images belonging
     to the same state are deemed different because the selection highligth
@@ -62,8 +63,12 @@ def remove_highlights(image: Image, buttons: Sequence) -> Image:
     """
     data = numpy.array(image)
 
-    for coord in buttons:
+    for action in actions:
+        coord = action.coordinates
         button_image = image.crop(coord)
+
+        if isinstance(action, Button) and getattr(action, 'focused', False):
+            data[coord.top:coord.bottom, coord.left:coord.right] = 0
         if rectangle_highlighted(button_image, coord):
             data[coord.top:coord.bottom, coord.left:coord.right] = 0
 

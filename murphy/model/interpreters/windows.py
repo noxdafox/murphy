@@ -153,7 +153,7 @@ class WindowsState(State):
 
         return compare_images(
             self.window.image, state.window.image,
-            self.tolerance.image, (a.coordinates for a in self.actions))
+            self.tolerance.image, self.actions)
 
     @property
     def busy(self) -> bool:
@@ -224,12 +224,16 @@ class WindowsWindow(Window):
 
 
 class WindowsAction(Action):
+    focused = False
+    """Actions under keyboard focus."""
+
     def __init__(self, control: Any, scraped: scrapers.Object, window: Window):
         self._window = window
         self._control = control
 
         self.text = scraped.text
         self.coordinates = scraped.coordinates
+        self.focused = scraped.properties.get('focused', False)
 
     def __eq__(self, action: Action) -> bool:
         return self.text == action.text
