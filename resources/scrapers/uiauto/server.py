@@ -72,7 +72,7 @@ def scraper_class_factory(scraper_path):
                 response['status'] = 'success'
                 logging.info("Window successfully scraped")
                 logging.debug(response['result'])
-            except (RuntimeError, TimeoutError) as error:
+            except (OSError, RuntimeError, TimeoutError) as error:
                 logging.exception(error)
                 response['error'] = "%r" % error
                 response['status'] = 'failure'
@@ -88,10 +88,9 @@ def scraper_class_factory(scraper_path):
 
 def run_command(args: str, timeout: int = DEFAULT_TIMEOUT) -> str:
     """Executes a command returning its exit code and output."""
-    logging.info("Executing %s command %s.")
-
     process = subprocess.Popen(args,
                                shell=True,
+                               stdin=subprocess.DEVNULL,
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)
 
