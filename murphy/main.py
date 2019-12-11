@@ -4,7 +4,8 @@ from pathlib import Path
 
 from murphy.journal import Journal
 from murphy.agents import application, installer, internet
-from murphy.win_libvirt import state_interpreter, libvirt_cleanup
+from murphy import win_libvirt
+from murphy import win_virtualbox
 
 
 def main():
@@ -13,8 +14,12 @@ def main():
 
     setup_logging(arguments.debug and 10 or 20)
 
-    interpreter = state_interpreter(
-        arguments.device, scraper_port=arguments.scraper_port)
+    if arguments.driver == 'libvirt':
+        interpreter = win_libvirt.state_interpreter(
+            arguments.device, scraper_port=arguments.scraper_port)
+    elif arguments.driver == 'virtualbox':
+        interpreter = win_virtualbox.state_interpreter(
+            arguments.device, scraper_port=arguments.scraper_port)
 
     if arguments.agent == 'installer':
         agent = installer.ApplicationInstaller(
@@ -22,7 +27,7 @@ def main():
             frequency=arguments.state_frequency)
 
         logging.info("Installing the application under focus.")
-    if arguments.agent == 'explorer':
+    elif arguments.agent == 'explorer':
         agent = application.ApplicationExplorer(
             interpreter, journal, max_depth=arguments.max_depth,
             frequency=arguments.state_frequency)
@@ -35,7 +40,7 @@ def main():
 
         logging.info("Exploring \"The Internet®\".")
     else:
-        logging.error("Unknown agent: %s", arguments.agent)
+        raise ValueError("Unknown agent: %s" % arguments.agent)
 
     try:
         agent.explore(arguments.timeout)
@@ -51,6 +56,7 @@ def main():
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description='Example MrMurphy Agent/Crawler implementation.')
+    parser.add_argument('driver', type=str, help='libvirt or virtualbox')
     parser.add_argument('device', type=str, help='Libvirt domain UUID')
     parser.add_argument(
         '-j', '--journal', type=str, default='journal',
