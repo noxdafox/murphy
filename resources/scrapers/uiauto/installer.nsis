@@ -1,0 +1,20 @@
+Name MrMurphy
+OutFile MrMurphyInstaller.exe
+InstallDir "$PROGRAMFILES\MrMurphy"
+
+Section
+    SetOutPath "$INSTDIR"
+    File server.exe
+    File scraper.exe
+    WriteUninstaller "$INSTDIR\uninstall.exe"
+    CreateShortCut "$SMSTARTUP\murphy.lnk" "$INSTDIR\server.exe" "0.0.0.0 8000 scraper.exe"
+    ExecWait 'netsh advfirewall firewall add rule name=MrMurphy dir=in action=allow program="$INSTDIR\server.exe" enable=yes profile=public,private'
+    ExecShell "" "$SMSTARTUP\murphy.lnk"
+SectionEnd
+
+Section Uninstall
+    ExecWait 'netsh advfirewall firewall delete rule name=MrMurphy'
+    ExecWait 'taskkill /im server.exe'
+    RMDir /r "$INSTDIR"
+    Delete "$SMSTARTUP\murphy.lnk"
+SectionEnd
