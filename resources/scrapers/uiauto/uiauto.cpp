@@ -59,14 +59,8 @@ int scrape(HWND hwnd, bool recursive)
 {
     CComPtr<IUIAutomation> uiauto;
 
-    if (CoInitialize(NULL) != S_OK) {
-        std::cerr << "Failed CoInitialize, exit..." << std::endl;
-        return -1;
-    }
-
     if (initialize_uiautomation(&uiauto) != S_OK) {
         std::cerr << "Failed initializing UIAutomation, exit..." << std::endl;
-        CoUninitialize();
         return -1;
     }
 
@@ -89,8 +83,6 @@ int scrape(HWND hwnd, bool recursive)
         std::cerr << "Failed to get foreground window... " << std::to_string(
             (long double) error) << std::endl;
     }
-
-    CoUninitialize();
 
     rapidjson::GenericStringBuffer<rapidjson::ASCII<>> buffer;
     rapidjson::Writer<
@@ -203,16 +195,16 @@ bool get_toggle_state(IUIAutomationElement *element)
 {
     HRESULT hres;
     VARIANT vstate;
-    ToggleState state = ToggleState_Indeterminate;
+    bool state = false;
 
     hres = element->GetCurrentPropertyValue(
         UIA_ToggleToggleStatePropertyId, &vstate);
     if (hres == S_OK)
-        state = (ToggleState) vstate.lVal;
+        state = (ToggleState) vstate.lVal == ToggleState_On ? true : false;
 
     VariantClear(&vstate);
 
-    return state == ToggleState_On ? true : false;
+    return state;
 }
 
 bool get_focus_state(IUIAutomationElement *element)
@@ -237,6 +229,8 @@ bool get_clickable_state(IUIAutomationElement *element)
 
     check_hresult(element->GetCurrentPropertyValue(
                       UIA_ClickablePointPropertyId, &vstate));
+
+    VariantClear(&vstate);
 
     return vstate.vt == VT_EMPTY;
 }
@@ -334,10 +328,17 @@ int _tmain(int argc, _TCHAR *argv[])
 
     hwnd = GetForegroundWindow();
 
+    if (CoInitialize(NULL) != S_OK) {
+        std::cerr << "Failed CoInitialize, exit..." << std::endl;
+        return -1;
+    }
+
     ret = scrape(hwnd, recursive);
 
+    CoUninitialize();
+
     if (console)
-        ShowWindow(hconsolewnd, SW_NORMAL);
+        ShowWindow(hconsolewnd, SW_RESTORE);
 
     return ret;
 }
