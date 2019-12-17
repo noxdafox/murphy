@@ -250,8 +250,8 @@ class ApplicationInstaller:
 
     def switch_focus(self):
         """Issue an ALT+ESC command to switch focus to the next window."""
-        with self.interpreter.control.keyboard.hold('alt'):
-            self.interpreter.control.keyboard.press('esc')
+        with self.interpreter.control.keyboard.hold('Alt'):
+            self.interpreter.control.keyboard.press('Esc')
 
         logging.info("Issued ALT+ESC.")
 

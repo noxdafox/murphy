@@ -34,21 +34,21 @@ class VNCKeyboard(Keyboard):
             time.sleep(random.uniform(*TYPING_DELAY))
 
     def press(self, key: str):
-        self._client.keyPress(key)
+        self._client.keyPress(key.lower())
 
     @contextmanager
-    def hold(self, key: (str, list, tuple)):
-        keys = [key] if isinstance(key, str) else key
+    def hold(self, keys: (str, list, tuple)):
+        keys = [keys] if isinstance(keys, str) else keys
 
-        for char in keys:
-            self._client.keyDown(char)
+        for key in keys:
+            self._client.keyDown(key.lower())
             time.sleep(random.uniform(*TYPING_DELAY))
 
         try:
             yield
         finally:
-            for char in keys:
-                self._client.keyUp(char)
+            for key in keys:
+                self._client.keyUp(key.lower())
 
 
 TYPING_DELAY = 0.04, 0.16

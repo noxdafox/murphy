@@ -24,17 +24,17 @@ class VirtualboxKeyboard(Keyboard):
     def press(self, key: str):
         with self._machine.create_session() as session:
             keyboard = session.console.keyboard
-            press, release = keyboard.SCANCODES[key]
+            press, release = keyboard.SCANCODES[key.upper()]
 
             keyboard.put_scancodes(press + release)
 
     @contextmanager
-    def hold(self, key: (str, list, tuple)):
+    def hold(self, keys: (str, list, tuple)):
         with self._machine.create_session() as session:
-            keys = [key] if isinstance(key, str) else key
+            keys = [keys] if isinstance(keys, str) else keys
             keyboard = session.console.keyboard
-            press = [keyboard.SCANCODES[k][0] for k in keys]
-            release = [keyboard.SCANCODES[k][1] for k in keys]
+            press = [keyboard.SCANCODES[k.upper()][0] for k in keys]
+            release = [keyboard.SCANCODES[k.upper()][1] for k in keys]
 
             for key_press in press:
                 keyboard.put_scancodes(key_press)

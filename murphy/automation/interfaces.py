@@ -6,30 +6,16 @@ from pathlib import Path
 from contextlib import contextmanager
 
 
-class Control:
-    """Group control-related interfaces."""
-    mouse = NotImplemented   # Type: Mouse
-    """The Mouse Control interface."""
-
-    keyboard = NotImplemented  # Type: Keyboard
-    """The Keyboard Control interface."""
-
-    state = NotImplemented  # Type: DeviceState
-    """The DeviceState Control interface."""
-
-
-class Feedback:
-    """Group feedback-related interfaces."""
-    screen = NotImplemented   # Type: Screen
-    """The Screen Feedback interface."""
-
-    load = NotImplemented  # Type: Load
-    """The Load Feedback interface."""
+class MurphyFactory:
+    """Factory class for the interfaces."""
+    def __call__(self):
+        """Execute the Factory logic."""
+        raise NotImplementedError()
 
 
 class Mouse:
     """Class representing the mouse of the device."""
-    def __init__(self, factory: 'MurphyFactory'):
+    def __init__(self, factory: MurphyFactory):
         pass
 
     def move(self, xcoord: int, ycoord: int):
@@ -52,7 +38,7 @@ class Keyboard:
     The key mapping is implementation dependent.
 
     """
-    def __init__(self, factory: 'MurphyFactory'):
+    def __init__(self, factory: MurphyFactory):
         pass
 
     def type(self, text: str):
@@ -70,7 +56,7 @@ class Keyboard:
         raise NotImplementedError()
 
     @contextmanager
-    def hold(self, key: (Any, list, tuple)):
+    def hold(self, keys: (Any, list, tuple)):
         """Keep one or more keys pressed within the context manager."""
         raise NotImplementedError()
 
@@ -83,7 +69,7 @@ class DeviceState:
     The state representation is opaque to the interface.
 
     """
-    def __init__(self, factory: 'MurphyFactory'):
+    def __init__(self, factory: MurphyFactory):
         pass
 
     def save(self) -> Any:
@@ -113,7 +99,7 @@ class DeviceState:
 
 class Screen:
     """Class representing the screen of the device."""
-    def __init__(self, factory: 'MurphyFactory'):
+    def __init__(self, factory: MurphyFactory):
         pass
 
     def screenshot(self, path: Path = None) -> Path:
@@ -134,21 +120,35 @@ class LoadAverage:
     Values should range from 0.0 (idle) to 1.0 (busy).
 
     """
-    cpu = NotImplemented   # Type: float
+    cpu: float = NotImplemented
     """The CPU load average in percentage."""
 
-    disk = NotImplemented  # Type: float
+    disk: float = NotImplemented
     """The Disk load average in percentage."""
 
-    network = NotImplemented  # Type: float
+    network: float = NotImplemented
     """The Network load average in percentage."""
 
     def __init__(self, factory: 'MurphyFactory'):
         pass
 
 
-class MurphyFactory:
-    """Factory class for the interfaces."""
-    def __call__(self):
-        """Execute the Factory logic."""
-        raise NotImplementedError()
+class Control:
+    """Group control-related interfaces."""
+    mouse: Mouse = NotImplemented
+    """The Mouse Control interface."""
+
+    keyboard: Keyboard = NotImplemented
+    """The Keyboard Control interface."""
+
+    state: DeviceState = NotImplemented
+    """The DeviceState Control interface."""
+
+
+class Feedback:
+    """Group feedback-related interfaces."""
+    screen: Screen = NotImplemented
+    """The Screen Feedback interface."""
+
+    load: LoadAverage = NotImplemented
+    """The Load Feedback interface."""
