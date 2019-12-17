@@ -19,7 +19,7 @@ from murphy.model.interpreters.windows_image import compare_images
 
 Tolerance = NamedTuple('Tolerance', (('image', float),  # image comparison
                                      ('load', tuple)))  # device load comparison
-DEFAULT_TOLERANCE = Tolerance(1.0, (0.10, 0.1, 0.1))
+DEFAULT_TOLERANCE = Tolerance(1.0, (0.4, 0.2, 0.1))
 
 
 class WindowsInterpreter(Interpreter):
